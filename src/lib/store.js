@@ -56,6 +56,15 @@ function load() {
       base.sessionId = null
       base.sessionExpiresAt = 0
     }
+    // 本机模式：这台设备上只有一个账号时，它就是管理员（老账号也能补上这个身份）
+    if (base.users.length === 1 && !base.users[0].role) {
+      base.users[0].role = 'admin'
+      try {
+        localStorage.setItem(KEY, JSON.stringify(sync(base)))
+      } catch {
+        /* ignore */
+      }
+    }
     return sync(base)
   } catch {
     return sync(blankState())
