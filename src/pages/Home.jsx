@@ -25,11 +25,41 @@ export default function Home() {
 
   if (!s.me) return null
 
+  const hour = new Date().getHours()
+  const greet = hour < 6 ? '凌晨好' : hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 18 ? '下午好' : '晚上好'
+
   return (
     <div className="page">
       <div className="feedwrap">
         <main className="feedmain">
           <Reveal>
+            <section className="welcome-banner">
+              <div className="welcome-banner__text">
+                <span className="eyebrow">
+                  {greet}，{s.me.nickname}
+                </span>
+                <h2>今天想做点什么？</h2>
+                <p>
+                  {s.friends.length} 个好友 · {s.materials.length} 份资料 · {s.circles.length} 个兴趣圈 ·{' '}
+                  {s.buddies.length} 个在招搭子
+                </p>
+                <div className="welcome-banner__btns">
+                  <Link to="/materials" className="btn btn--primary btn--sm">
+                    逛资料库
+                  </Link>
+                  <Link to="/circles" className="btn btn--ghost btn--sm">
+                    找搭子
+                  </Link>
+                  <Link to="/match" className="btn btn--ghost btn--sm">
+                    测测同频
+                  </Link>
+                </div>
+              </div>
+              <span className="welcome-banner__art">🎓</span>
+            </section>
+          </Reveal>
+
+          <Reveal delay={40}>
             <Composer />
           </Reveal>
 

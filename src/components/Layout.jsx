@@ -42,6 +42,7 @@ export default function Layout() {
   return (
     <div className="shell">
       <div className="ambient" aria-hidden="true" />
+      <div className="app-dots" aria-hidden="true" />
       <ReadProgress />
       <aside className="side">
         <Link to="/" className="side__brand">
