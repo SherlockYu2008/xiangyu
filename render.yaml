@@ -1,0 +1,19 @@
+# Render 一键部署配置：把 Node 后端放到云端
+# 用法：Render 控制台 → New → Blueprint → 选这个仓库
+services:
+  - type: web
+    name: xiangyu
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node server/index.mjs
+    healthCheckPath: /api/health
+    envVars:
+      - key: XY_SECRET
+        generateValue: true
+      - key: XY_DATA_DIR
+        value: /var/data
+    disk:
+      name: xiangyu-data
+      mountPath: /var/data
+      sizeGB: 1
