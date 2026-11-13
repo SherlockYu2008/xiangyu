@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '../components/Icon'
 import { Avatar, Empty, useToast } from '../components/ui'
@@ -204,7 +204,7 @@ export default function Friends() {
             <Empty
               icon="users"
               title={s.people.length === 0 ? '还没有其他真人注册' : '都加过了'}
-              desc={s.people.length === 0 ? '这里没有示例用户。把网址发给同学，他们注册后就会出现在这里。' : '换个关键词试试。'}
+              desc={s.people.length === 0 ? '把网址发给同学，他们注册后就会出现在这里。' : '换个关键词试试。'}
             />
           ) : (
             <div className="grid grid--2">

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Icon, { Mark } from '../components/Icon'
 import { Aurora } from '../components/FX'
@@ -113,20 +113,16 @@ export default function Welcome() {
             <br />
             <em>橡遇</em>同频的你
           </h1>
-          <p className="welcome__lead">
-            {BRAND.desc}
-            <br />
-            这里没有示例用户、没有机器人，列表里出现的每一个人都真的注册过。
-          </p>
+          <p className="welcome__lead">{BRAND.desc}</p>
 
           <ul className="welcome__points">
             <li>
               <span className="welcome__pi tone-violet">
-                <Icon name="shield" size={17} />
+                <Icon name="book" size={17} />
               </span>
               <div>
-                <b>没有假人</b>
-                <span>示例数据已全部移除。空就是空，等真人来填。</span>
+                <b>学习资料库</b>
+                <span>课程笔记、课件、真题，按课程分类，传一次全班都能用。</span>
               </div>
             </li>
             <li>
@@ -322,7 +318,7 @@ export default function Welcome() {
         <span>
           © {new Date().getFullYear()} {BRAND.name} · {BRAND.tagline}
         </span>
-        <span>无示例用户 · 数据只存在本机浏览器 · 未连接后端</span>
+        <span>数据只存在本机浏览器 · 未连接后端</span>
       </footer>
     </div>
   )
