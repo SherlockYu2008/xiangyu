@@ -1,4 +1,4 @@
-﻿// 橡遇 · 共享后端（零依赖）
+// 橡遇 · 共享后端（零依赖）
 // 跑起来：node server/index.mjs
 // 打开：http://localhost:8787（同一 WiFi 的同学用你的内网 IP:8787 也能进）
 //
@@ -41,11 +41,19 @@ function persistFile(dataUrl, name) {
   if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:')) return dataUrl
   const m = /^data:([^;,]+);base64,([\s\S]+)$/i.exec(dataUrl)
   if (!m) return dataUrl
+  const mime = m[1].toLowerCase()
+  const ext = EXT_BY_MIME[mime] || (mime.startsWith('image/') ? 'jpg' : 'bin')
+  const file = `${name}.${ext}`
+
+  // 云数据库模式：文件直接存进 world.__files，服务器无状态
+  if (useDb) {
+    world.__files = world.__files || {}
+    world.__files[file] = { mime, b64: m[2] }
+    return `/uploads/${file}`
+  }
+
   try {
     mkdirSync(UPLOADS, { recursive: true })
-    const mime = m[1].toLowerCase()
-    const ext = EXT_BY_MIME[mime] || (mime.startsWith('image/') ? 'jpg' : 'bin')
-    const file = `${name}.${ext}`
     writeFileSync(join(UPLOADS, file), Buffer.from(m[2], 'base64'))
     return `/uploads/${file}`
   } catch (e) {
@@ -60,9 +68,13 @@ function persistImage(dataUrl, name) {
 
 function removeImage(url) {
   if (typeof url !== 'string' || !url.startsWith('/uploads/')) return
-  const file = join(UPLOADS, url.slice('/uploads/'.length))
+  const file = url.slice('/uploads/'.length)
+  if (useDb && world.__files) {
+    delete world.__files[file]
+    return
+  }
   try {
-    unlinkSync(file)
+    unlinkSync(join(UPLOADS, file))
   } catch {
     /* 文件可能已经不在了 */
   }
@@ -91,20 +103,74 @@ function blankWorld() {
     circleMembers: {}, convStore: { conversations: [], messages: {} },
     materials: [],
     announcement: null,
+    __files: {},
   }
 }
 
 let world = blankWorld()
-try {
-  if (existsSync(DATA_FILE)) world = { ...blankWorld(), ...JSON.parse(readFileSync(DATA_FILE, 'utf8')) }
-} catch (e) {
-  console.error('读取数据失败，用空数据启动：', e.message)
+let saveTimer = null
+let useDb = false
+
+/* ---------------- 存储：文件 或 云端数据库 ----------------
+   配了 XY_DB_URL + XY_DB_KEY 就把整份数据存进 Supabase/任意 PostgREST：
+     建表：create table world (id int primary key, data jsonb, updated_at timestamptz default now());
+   这样服务器本身无状态，免费托管重启也不会丢数据。 */
+const DB_URL = process.env.XY_DB_URL ? String(process.env.XY_DB_URL).replace(/\/+$/, '') : ''
+const DB_KEY = process.env.XY_DB_KEY || ''
+useDb = Boolean(DB_URL && DB_KEY)
+
+async function dbLoad() {
+  const res = await fetch(`${DB_URL}/rest/v1/world?id=eq.1&select=data`, {
+    headers: { apikey: DB_KEY, Authorization: `Bearer ${DB_KEY}` },
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  const rows = await res.json()
+  return rows?.[0]?.data || null
 }
 
-let saveTimer = null
+async function dbSave(data) {
+  const res = await fetch(`${DB_URL}/rest/v1/world`, {
+    method: 'POST',
+    headers: {
+      apikey: DB_KEY,
+      Authorization: `Bearer ${DB_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates',
+    },
+    body: JSON.stringify({ id: 1, data, updated_at: new Date().toISOString() }),
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+}
+
+async function initWorld() {
+  if (useDb) {
+    try {
+      const d = await dbLoad()
+      if (d) world = { ...blankWorld(), ...d }
+      console.log('已从云端数据库读取数据')
+    } catch (e) {
+      console.error('云端读取失败（用空数据启动）：', e.message)
+    }
+    return
+  }
+  try {
+    if (existsSync(DATA_FILE)) world = { ...blankWorld(), ...JSON.parse(readFileSync(DATA_FILE, 'utf8')) }
+  } catch (e) {
+    console.error('读取数据失败，用空数据启动：', e.message)
+  }
+}
+
 function save() {
   clearTimeout(saveTimer)
-  saveTimer = setTimeout(() => {
+  saveTimer = setTimeout(async () => {
+    if (useDb) {
+      try {
+        await dbSave(world)
+      } catch (e) {
+        console.error('云端保存失败：', e.message)
+      }
+      return
+    }
     try {
       mkdirSync(DATA_DIR, { recursive: true })
       writeFileSync(DATA_FILE, JSON.stringify(world))
@@ -496,6 +562,20 @@ const server = http.createServer(async (req, res) => {
   // 图片文件：/uploads/xxx.jpg
   if (url.startsWith('/uploads/')) {
     const name = url.slice('/uploads/'.length).replace(/[^a-zA-Z0-9._-]/g, '')
+
+    // 云数据库模式：文件在 world.__files 里
+    if (useDb) {
+      const f = world.__files?.[name]
+      if (!f) return res.writeHead(404).end('not found')
+      const buf = Buffer.from(f.b64, 'base64')
+      res.writeHead(200, {
+        'Content-Type': f.mime || 'application/octet-stream',
+        'Content-Length': buf.length,
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      })
+      return res.end(buf)
+    }
+
     const file = normalize(join(UPLOADS, name))
     if (!file.startsWith(UPLOADS)) return res.writeHead(403).end()
     try {
@@ -611,6 +691,7 @@ function migrateImages() {
   }
 }
 
+await initWorld()
 migrateImages()
 
 server.on('error', (e) => {

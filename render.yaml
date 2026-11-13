@@ -1,5 +1,6 @@
-# Render 一键部署配置：把 Node 后端放到云端
-# 用法：Render 控制台 → New → Blueprint → 选这个仓库
+# Render 一键部署配置（配合云端数据库，服务端无状态）
+# 用法：Render → New → Blueprint → 选仓库
+# 需要在 Render 后台手动填 XY_DB_URL / XY_DB_KEY（Supabase 的 Project URL 和 service_role key）
 services:
   - type: web
     name: xiangyu
@@ -11,9 +12,7 @@ services:
     envVars:
       - key: XY_SECRET
         generateValue: true
-      - key: XY_DATA_DIR
-        value: /var/data
-    disk:
-      name: xiangyu-data
-      mountPath: /var/data
-      sizeGB: 1
+      - key: XY_DB_URL
+        sync: false
+      - key: XY_DB_KEY
+        sync: false
