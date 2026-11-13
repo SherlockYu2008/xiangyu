@@ -493,6 +493,8 @@ export async function register(input) {
     studentNo: input.studentNo ? maskStudentNo(input.studentNo) : '未填写',
     createdAt: Date.now(),
     online: true,
+    // 本机模式：这台设备上的第一个账号自动成为管理员
+    role: s.users.length === 0 ? 'admin' : 'user',
     security: { failed: 0, lockedUntil: 0, lastLoginAt: 0, lastLoginDevice: '' },
   }
 

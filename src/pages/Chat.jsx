@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Icon from '../components/Icon'
 import { Avatar, Empty } from '../components/ui'
@@ -71,7 +71,7 @@ export default function Chat() {
         <div className="chat__box" ref={boxRef}>
           <div className="chat__day">{fmtDay(msgs[0]?.at || Date.now())}</div>
           {msgs.length === 0 && (
-            <p className="chat__empty">还没聊过。可以先用 AI 生成一句破冰的话（会消耗 1 次额度）。</p>
+            <p className="chat__empty">还没聊过，先打个招呼吧。</p>
           )}
           {msgs.map((m) => (
             <div className={`bubble-row ${m.from === s.me?.id ? 'is-me' : ''}`} key={m.id}>

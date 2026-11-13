@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import Icon from '../components/Icon'
 import { Avatar, Empty, Progress, ScoreRing, Tag, useToast } from '../components/ui'
 import { STYLES, TAG_POOL } from '../lib/data'
-import { pickRandom, rankDeep, rankMatches, reasons, sharedTags } from '../lib/match'
-import { AI_DAILY_LIMIT, aiQuota, runAiDemo, sendRequest, startChat, useStore } from '../lib/store'
+import { pickRandom, rankDeep, rankMatches, reasons } from '../lib/match'
+import { sendRequest, startChat, useStore } from '../lib/store'
 
 const TOPIC_POOL = ['音乐', '运动', '技术', '读书', '电影', '游戏', '美食', '旅行', '科研', '毕业去向', '校园生活', '自我管理']
 
@@ -63,31 +63,6 @@ export default function Match() {
   const [deepRan, setDeepRan] = useState(false)
   const deepList = useMemo(() => rankDeep(s.me, s.people, prefs).slice(0, 5), [s.me, s.people, prefs])
 
-  /* AI 增强（演示） */
-  const [aiOut, setAiOut] = useState(null)
-  const quota = aiQuota(s)
-
-  const runAi = (feature) => {
-    const me = s.me
-    const args =
-      feature === 'icebreaker'
-        ? [me.tags, me.lookingFor]
-        : feature === 'explain'
-          ? [sharedTags(me.tags, s.people[0]?.tags || ['羽毛球'])]
-          : feature === 'summary'
-            ? [me.tags]
-            : []
-    const res = runAiDemo(feature, args)
-    if (!res.ok) {
-      setAiOut({ title: '额度用完了', lines: [res.reason] })
-      return
-    }
-    setAiOut({
-      title: { icebreaker: '破冰话题', explain: '共同点解释', summary: '兴趣总结', topic_suggest: '话题建议' }[feature],
-      lines: res.lines,
-    })
-  }
-
   const chat = (person) => {
     const id = startChat(person.id)
     if (id) nav(`/messages/${id}`)
@@ -116,7 +91,7 @@ export default function Match() {
         <div>
           <span className="eyebrow">同频匹配</span>
           <h1>三种方式，认识对的人</h1>
-          <p>全部由普通程序算出来：不排队等 AI，不消耗额度，断网恢复后照样能用。</p>
+          <p>全部由普通程序算出来：秒出结果，不消耗额度，断网恢复后照样能用。</p>
         </div>
       </header>
 
@@ -140,7 +115,7 @@ export default function Match() {
           <div className="panel__head">
             <div>
               <h3>你的兴趣标签</h3>
-              <p>点一下就能改，改完分数立刻变。这就是它比 AI 便宜的原因。</p>
+              <p>点一下就能改，改完分数立刻变。</p>
             </div>
             <span className="pill">{myTags.length} 个标签</span>
           </div>
@@ -229,7 +204,7 @@ export default function Match() {
                 <button type="button" className="btn btn--primary btn--lg" onClick={startRandom}>
                   开始匹配
                 </button>
-                <p className="random__note">随机匹配不调用 AI，也不会把学号之类的东西暴露出去。</p>
+                <p className="random__note">随机匹配不会把学号之类的东西暴露出去。</p>
               </>
             )}
 
@@ -404,51 +379,6 @@ export default function Match() {
           )}
         </section>
       )}
-
-      <section className="aipanel">
-        <div className="aipanel__head">
-          <div>
-            <h3>
-              <Icon name="sparkles" size={17} /> AI 可选增强
-            </h3>
-            <p>只有你点下面的按钮才会触发。真实版本走后端 Edge Function，带次数、预算和缓存三重限制。</p>
-          </div>
-          <span className={`pill ${quota === 0 ? 'pill--warn' : ''}`}>
-            今日额度 {AI_DAILY_LIMIT - quota}/{AI_DAILY_LIMIT}
-          </span>
-        </div>
-
-        <div className="aipanel__btns">
-          <button type="button" className="btn btn--soft btn--sm" onClick={() => runAi('icebreaker')}>
-            生成破冰话题
-          </button>
-          <button type="button" className="btn btn--soft btn--sm" onClick={() => runAi('explain')}>
-            解释共同点
-          </button>
-          <button type="button" className="btn btn--soft btn--sm" onClick={() => runAi('summary')}>
-            兴趣总结
-          </button>
-          <button type="button" className="btn btn--soft btn--sm" onClick={() => runAi('topic_suggest')}>
-            话题建议
-          </button>
-        </div>
-
-        {aiOut && (
-          <div className="aipanel__out">
-            <b>{aiOut.title}</b>
-            <ul>
-              {aiOut.lines.map((l) => (
-                <li key={l}>{l}</li>
-              ))}
-            </ul>
-            <span className="aipanel__tag">演示模式：本地模板生成，未调用 DeepSeek</span>
-          </div>
-        )}
-
-        {quota === 0 && (
-          <Empty icon="shield" title="今天 3 次额度用完了" desc="普通功能完全不受影响，明天 0 点重置。这就是低成本设计该有的样子。" />
-        )}
-      </section>
     </div>
   )
 }

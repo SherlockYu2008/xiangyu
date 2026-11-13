@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import Icon from '../components/Icon'
 import { Avatar, Empty } from '../components/ui'
 import { fmtRelative } from '../lib/time'
@@ -16,7 +16,7 @@ export default function Messages() {
         <div>
           <span className="eyebrow">消息</span>
           <h1>聊天和好友申请</h1>
-          <p>普通消息走实时通道，不经过 AI；每条都在后端做权限校验。</p>
+          <p>普通消息走实时通道，每条都在后端做权限校验。</p>
         </div>
       </header>
 

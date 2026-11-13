@@ -1,13 +1,11 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+﻿import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import Icon from '../components/Icon'
 import { Avatar, Empty, Modal, Switch, Tag, useToast } from '../components/ui'
 import { CAMPUSES, GRADES, TAG_POOL } from '../lib/data'
 import { checkPassword, strongPassword } from '../lib/auth'
 import { fmtClock, fmtDate } from '../lib/time'
 import {
-  AI_DAILY_LIMIT,
-  aiQuota,
   changePassword,
   clearAll,
   deleteAccount,
@@ -15,6 +13,7 @@ import {
   logout,
   myBuddies,
   setSetting,
+  statsOf,
   updateMe,
   useStore,
 } from '../lib/store'
@@ -56,7 +55,7 @@ export default function Me() {  const s = useStore()
   if (!s.me) return null
 
   const mine = myBuddies(s)
-  const used = AI_DAILY_LIMIT - aiQuota(s)
+  const stats = statsOf(s, s.me.id)
 
   const openEdit = () => {
     setForm({
@@ -103,7 +102,7 @@ export default function Me() {  const s = useStore()
         <div>
           <span className="eyebrow">个人中心</span>
           <h1>我的橡遇</h1>
-          <p>资料、隐私、AI 额度，都在这一页。</p>
+          <p>资料、隐私和账号安全，都在这一页。</p>
         </div>
         <button type="button" className="btn btn--ghost" onClick={openEdit}>
           <Icon name="edit" size={16} /> 编辑资料
@@ -267,31 +266,50 @@ export default function Me() {  const s = useStore()
         <section className="panel">
           <div className="panel__head">
             <div>
-              <h3>AI 使用记录</h3>
-              <p>只有你主动点按钮才会记一次</p>
+              <h3>我的内容</h3>
+              <p>发过多少、传过多少，一目了然</p>
             </div>
-            <span className={`pill ${used >= AI_DAILY_LIMIT ? 'pill--warn' : ''}`}>
-              {used} / {AI_DAILY_LIMIT}
-            </span>
           </div>
 
           <div className="settingrow">
             <div>
-              <b>今日已用</b>
-              <span>每日 {AI_DAILY_LIMIT} 次，0 点重置</span>
+              <b>动态</b>
+              <span>新鲜事里发过的条数</span>
             </div>
-            <b style={{ fontSize: 18 }}>{used}</b>
+            <Link to="/" className="pill">
+              {stats.posts} 条
+            </Link>
           </div>
           <div className="settingrow">
             <div>
-              <b>全站预算</b>
-              <span>达到上限后端自动关闭 AI，社交功能不受影响</span>
+              <b>相册 / 照片</b>
+              <span>我建的相册和上传的照片</span>
             </div>
-            <span className="chip chip--green">正常</span>
+            <Link to="/albums" className="pill">
+              {stats.albums} / {stats.photos}
+            </Link>
+          </div>
+          <div className="settingrow">
+            <div>
+              <b>日志</b>
+              <span>写过的长文</span>
+            </div>
+            <Link to="/diary" className="pill">
+              {stats.diaries} 篇
+            </Link>
+          </div>
+          <div className="settingrow">
+            <div>
+              <b>资料</b>
+              <span>在资料库分享的份数</span>
+            </div>
+            <Link to="/materials" className="pill">
+              {s.materials.filter((m) => m.ownerId === s.me.id).length} 份
+            </Link>
           </div>
           <p className="panel__note">
             <Icon name="shield" size={14} />
-            真实调用只发生在后端 Edge Function 里，API Key 永远不会到浏览器。
+            资料和照片都可以随时删除，删掉后别人也看不到了。
           </p>
         </section>
 

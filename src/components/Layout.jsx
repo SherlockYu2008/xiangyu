@@ -76,8 +76,8 @@ export default function Layout() {
               <Icon name="shield" size={16} />
             </span>
             <div>
-              <b>AI 省电模式</b>
-              <span>普通功能 0 次调用</span>
+              <b>青岛科技大学</b>
+              <span>校内同频 · 学习圈</span>
             </div>
           </div>
           <Link to="/me" className="side__me">
