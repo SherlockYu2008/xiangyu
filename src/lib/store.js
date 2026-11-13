@@ -343,18 +343,31 @@ export function adoptCloud(worldData, meId) {
 }
 
 let syncTimer = null
+let unsubStream = null
 
 export function startCloudSync(meId) {
   if (!cloud.isCloud()) return
   clearInterval(syncTimer)
-  syncTimer = setInterval(async () => {
+
+  const pull = async () => {
     const r = await cloud.world()
     if (r?.ok) adoptCloud(r.world, meId || getState().sessionId)
-  }, 4000)
+  }
+
+  // 实时通道：服务器有人改数据就立刻拉一次（正常情况下一两秒内就能看到）
+  if (unsubStream) unsubStream()
+  unsubStream = cloud.subscribe(pull)
+
+  // 兜底轮询：SSE 被代理挡掉时也不至于完全不动
+  syncTimer = setInterval(pull, 8000)
 }
 
 export function stopCloudSync() {
   clearInterval(syncTimer)
+  if (unsubStream) {
+    unsubStream()
+    unsubStream = null
+  }
 }
 
 

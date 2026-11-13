@@ -79,6 +79,32 @@ export function op(type, payload) {
   call('/api/op', { type, payload }).catch(() => {})
 }
 
+/* ---------------- 实时通道（SSE） ---------------- */
+
+let stream = null
+
+export function subscribe(onChange) {
+  if (!enabled || !token) return () => {}
+  if (stream) stream.close()
+  try {
+    stream = new EventSource(`${base}/api/stream?token=${encodeURIComponent(token)}`)
+    stream.addEventListener('change', () => onChange())
+    stream.onerror = () => {
+      /* 浏览器会自动重连，不用管 */
+    }
+  } catch {
+    stream = null
+  }
+  return () => {
+    if (stream) stream.close()
+    stream = null
+  }
+}
+
 export function logoutCloud() {
+  if (stream) {
+    stream.close()
+    stream = null
+  }
   setToken('')
 }

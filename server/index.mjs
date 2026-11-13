@@ -549,6 +549,18 @@ function serveStatic(req, res) {
   }
 }
 
+const sseClients = new Set()
+
+function broadcast() {
+  for (const client of sseClients) {
+    try {
+      client.write('event: change\ndata: {}\n\n')
+    } catch {
+      sseClients.delete(client)
+    }
+  }
+}
+
 const server = http.createServer(async (req, res) => {
   const url = (req.url || '/').split('?')[0]
 
@@ -558,6 +570,34 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') return res.writeHead(204).end()
 
   if (url === '/api/health') return json(res, 200, { ok: true, users: world.users.length })
+
+  // 实时推送：浏览器用 EventSource 连这里，有人改数据就推一条 change
+  if (url.startsWith('/api/stream')) {
+    const token = new URL(req.url, 'http://localhost').searchParams.get('token') || ''
+    const user = verifyToken(token)
+    if (!user) return res.writeHead(401).end()
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+      'Access-Control-Allow-Origin': '*',
+      'X-Accel-Buffering': 'no',
+    })
+    res.write(': connected\n\n')
+    sseClients.add(res)
+    const ping = setInterval(() => {
+      try {
+        res.write(': ping\n\n')
+      } catch {
+        /* ignore */
+      }
+    }, 25000)
+    req.on('close', () => {
+      clearInterval(ping)
+      sseClients.delete(res)
+    })
+    return
+  }
 
   // 图片文件：/uploads/xxx.jpg
   if (url.startsWith('/uploads/')) {
@@ -604,7 +644,9 @@ const server = http.createServer(async (req, res) => {
       id: rid('u'), nickname, pass: hashPw(password),
       grade: b.grade || '', campus: b.campus || '', major: b.major || '', bio: b.bio || '',
       tags: b.tags || [], studentNo: b.studentNo ? `${b.studentNo.slice(0, 4)}******` : '未填写',
-      createdAt: Date.now(), lastLoginAt: Date.now(), online: true, role: 'user',
+      createdAt: Date.now(), lastLoginAt: Date.now(), online: true,
+      // 整台服务器上的第一个账号自动成为管理员
+      role: world.users.length === 0 ? 'admin' : 'user',
     }
     world.users.push(user)
     save()
@@ -657,6 +699,7 @@ const server = http.createServer(async (req, res) => {
       return json(res, 500, { ok: false, error: e.message })
     }
     save()
+    broadcast()
     return json(res, 200, { ok: true, ...extra })
   }
 
