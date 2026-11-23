@@ -90,7 +90,13 @@ export function subscribe(onChange) {
     stream = new EventSource(`${base}/api/stream?token=${encodeURIComponent(token)}`)
     stream.addEventListener('change', () => onChange())
     stream.onerror = () => {
-      /* 浏览器会自动重连，不用管 */
+      // 有的托管（如 Cloudflare Pages）不支持长连接，直接关掉，靠轮询兜底
+      try {
+        stream.close()
+      } catch {
+        /* ignore */
+      }
+      stream = null
     }
   } catch {
     stream = null
