@@ -1331,3 +1331,126 @@
   font-size: 11.5px;
   color: var(--muted);
 }
+
+/* ---------------- 骨架屏 ---------------- */
+
+.skeleton-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 24px;
+}
+
+.skeleton {
+  display: block;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #eeeafb 25%, #f7f5ff 37%, #eeeafb 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+.skeleton--title { height: 30px; width: 38%; }
+.skeleton--line { height: 14px; width: 62%; }
+.skeleton--card { height: 120px; }
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* ---------------- 开发历程时间线 ---------------- */
+
+.timeline {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0 0 0 6px;
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  bottom: 12px;
+  width: 2px;
+  background: linear-gradient(#ddd6ff, #eef2ff);
+  border-radius: 2px;
+}
+
+.timeline li {
+  position: relative;
+  padding: 0 0 18px 30px;
+}
+
+.timeline li:last-child {
+  padding-bottom: 0;
+}
+
+.timeline__dot {
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--brand);
+  box-shadow: 0 0 0 4px rgba(91, 85, 240, 0.08);
+}
+
+.timeline__body b {
+  display: block;
+  font-size: 14px;
+  margin: 2px 0 4px;
+}
+
+.timeline__date {
+  font-size: 11px;
+  color: var(--brand);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.timeline__body p {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.timeline__ai {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #faf8ff;
+  color: var(--ink-2) !important;
+}
+
+.timeline__ai svg {
+  vertical-align: -2px;
+  margin-right: 4px;
+  color: var(--brand);
+}
+
+.chiprow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 首页标签栏吸顶：滚动时始终能看到「好友/全校」切换 */
+.feedtabs {
+  position: sticky;
+  top: 8px;
+  z-index: 6;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: saturate(160%) blur(12px);
+  -webkit-backdrop-filter: saturate(160%) blur(12px);
+}
+
+@media (max-width: 720px) {
+  .feedtabs {
+    position: static;
+    backdrop-filter: none;
+  }
+}

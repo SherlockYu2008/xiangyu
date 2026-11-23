@@ -6,6 +6,7 @@ import { blankState } from './data.js'
 import { hashPassword, randomSalt, strongPassword } from './auth.js'
 import { todayKey } from './time.js'
 import * as cloud from './cloud.js'
+import * as remote from './remote.js'
 
 const KEY = 'xiangyu.state.v2'
 
@@ -368,6 +369,87 @@ export function stopCloudSync() {
     unsubStream()
     unsubStream = null
   }
+}
+
+/* ---------------- 直连 Supabase 模式 ---------------- */
+
+let remoteTimer = null
+let pushTimer = null
+let lastStamp = ''
+let pushing = false
+
+const remoteSnapshot = (s) => ({
+  users: s.users,
+  posts: s.posts,
+  albums: s.albums,
+  diaries: s.diaries,
+  materials: s.materials,
+  guestbook: s.guestbook,
+  visits: s.visits,
+  friendPairs: s.friendPairs,
+  requestLog: s.requestLog,
+  buddies: s.buddies,
+  circles: s.circles,
+  circleMembers: s.circleMembers,
+  convStore: s.convStore,
+  announcement: s.announcement,
+})
+
+const schedulePush = () => {
+  clearTimeout(pushTimer)
+  pushTimer = setTimeout(async () => {
+    if (pushing) return
+    pushing = true
+    try {
+      await remote.pushWorld(remoteSnapshot(getState()))
+      lastStamp = (await remote.pullStamp()) || lastStamp
+    } catch (e) {
+      console.error('同步到云端失败：', e.message)
+    } finally {
+      pushing = false
+    }
+  }, 700)
+}
+
+export async function startRemoteSync() {
+  if (!remote.isRemote()) return
+  const boot = async () => {
+    try {
+      const data = await remote.pullWorld()
+      if (data) adoptCloud(data, getState().sessionId)
+      lastStamp = (await remote.pullStamp()) || ''
+    } catch (e) {
+      console.error('读取云端失败：', e.message)
+    }
+  }
+  await boot()
+
+  // 本地一改就推（防抖 700ms）
+  subscribe(() => {
+    if (!applyingRemote) schedulePush()
+  })
+
+  // 轮询远端：别人改了，就拉下来
+  clearInterval(remoteTimer)
+  remoteTimer = setInterval(async () => {
+    if (pushing) return
+    try {
+      const stamp = await remote.pullStamp()
+      if (!stamp || stamp === lastStamp) return
+      const data = await remote.pullWorld()
+      if (data) {
+        adoptCloud(data, getState().sessionId)
+        lastStamp = stamp
+      }
+    } catch {
+      /* 网络抖动忽略 */
+    }
+  }, 4000)
+}
+
+export function stopRemoteSync() {
+  clearInterval(remoteTimer)
+  clearTimeout(pushTimer)
 }
 
 
