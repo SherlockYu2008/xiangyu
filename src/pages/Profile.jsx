@@ -81,7 +81,7 @@ export default function Profile() {
       <header className="profile">
         <div className="profile__cover" />
         <div className="profile__body">
-          <Avatar name={person.nickname} seed={person.nickname} size={92} ring online={person.online} className="profile__avatar" />
+          <Avatar name={person.nickname} seed={person.nickname} src={person.avatar} size={92} ring online={person.online} className="profile__avatar" />
           <div className="profile__main">
             <h1>
               {person.nickname}
@@ -258,7 +258,7 @@ export default function Profile() {
                 return (
                   <div className="boardrow" key={g.id}>
                     <Link to={`/u/${g.fromId}`}>
-                      <Avatar name={from?.nickname} seed={from?.nickname} size={34} />
+                      <Avatar name={from?.nickname} seed={from?.nickname} src={from?.avatar} size={34} />
                     </Link>
                     <div>
                       <p>

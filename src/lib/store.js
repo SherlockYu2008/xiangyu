@@ -305,6 +305,7 @@ function pushDiff(prev, next) {
       patch: {
         nickname: next.me.nickname, grade: next.me.grade, campus: next.me.campus,
         major: next.me.major, bio: next.me.bio, tags: next.me.tags,
+        avatar: next.me.avatar || '',
       },
     })
   }
@@ -695,6 +696,11 @@ export function updateMe(patch) {
       users: s.users.map((u) => (u.id === s.sessionId ? { ...u, ...patch } : u)),
     }
   })
+}
+
+/** 换头像：传压缩后的 dataUrl（200×200 左右，十几 KB） */
+export function updateAvatar(dataUrl) {
+  updateMe({ avatar: dataUrl || '' })
 }
 
 export async function changePassword(oldPw, newPw) {

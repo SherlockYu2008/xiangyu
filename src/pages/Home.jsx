@@ -114,7 +114,7 @@ export default function Home() {
         <aside className="rail">
           <section className="railcard railcard--me">
             <Link to="/u/me" className="railme">
-              <Avatar name={s.me.nickname} seed={s.me.nickname} size={56} ring online />
+              <Avatar name={s.me.nickname} seed={s.me.nickname} src={s.me.avatar} size={56} ring online />
               <div>
                 <b>{s.me.nickname}</b>
                 <span>
@@ -153,7 +153,7 @@ export default function Home() {
                 {sugg.map(({ person, shared }) => (
                   <li key={person.id}>
                     <Link to={`/u/${person.id}`}>
-                      <Avatar name={person.nickname} seed={person.nickname} size={32} />
+                      <Avatar name={person.nickname} seed={person.nickname} src={person.avatar} size={32} />
                       <div>
                         <b>{person.nickname}</b>
                         <span>

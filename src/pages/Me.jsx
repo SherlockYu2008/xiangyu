@@ -1,10 +1,11 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Icon from '../components/Icon'
 import { Avatar, Empty, Modal, Switch, Tag, useToast } from '../components/ui'
 import { CAMPUSES, GRADES, TAG_POOL } from '../lib/data'
 import { checkPassword, strongPassword } from '../lib/auth'
 import { fmtClock, fmtDate } from '../lib/time'
+import { compressImage } from '../lib/image'
 import {
   changePassword,
   clearAll,
@@ -15,6 +16,7 @@ import {
   setSetting,
   statsOf,
   updateMe,
+  updateAvatar,
   useStore,
 } from '../lib/store'
 
@@ -41,12 +43,26 @@ const shortDevice = (ua = '') => {
   return `${os} · ${browser}`
 }
 
-export default function Me() {  const s = useStore()
+export default function Me() {
+  const s = useStore()
   const nav = useNavigate()
   const toast = useToast()
   const [editing, setEditing] = useState(false)
   const [confirmClear, setConfirmClear] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+
+  const pickAvatar = async (e) => {
+    const f = e.target.files?.[0]
+    e.target.value = ''
+    if (!f) return
+    try {
+      const url = await compressImage(f, { maxSide: 240, quality: 0.85 })
+      updateAvatar(url)
+      toast('头像已更新')
+    } catch (err) {
+      toast(err.message)
+    }
+  }
   const [pwOpen, setPwOpen] = useState(false)
   const [pw, setPw] = useState({ old: '', next: '', next2: '' })
   const [busy, setBusy] = useState(false)
@@ -110,7 +126,13 @@ export default function Me() {  const s = useStore()
       </header>
 
       <section className="meprofile">
-        <Avatar name={s.me.nickname} seed={s.me.nickname} size={72} ring online />
+        <label className="avatarpick" title="点击换头像">
+          <Avatar name={s.me.nickname} seed={s.me.nickname} src={s.me.avatar} size={72} ring online />
+          <span className="avatarpick__badge">
+            <Icon name="camera" size={13} />
+          </span>
+          <input type="file" accept="image/*" hidden onChange={pickAvatar} />
+        </label>
         <div className="meprofile__main">
           <h1>
             {s.me.nickname}

@@ -52,7 +52,7 @@ export function PostCard({ post }) {
     <article className="post">
       <header className="post__head">
         <Link to={`/u/${post.authorId}`}>
-          <Avatar name={author?.nickname} seed={author?.nickname} size={40} online={author?.online} />
+          <Avatar name={author?.nickname} seed={author?.nickname} src={author?.avatar} size={40} online={author?.online} />
         </Link>
         <div className="post__who">
           <Link to={`/u/${post.authorId}`} className="post__name">
@@ -137,7 +137,7 @@ export function PostCard({ post }) {
             return (
               <div className="comment" key={c.id}>
                 <Link to={`/u/${c.from}`}>
-                  <Avatar name={from?.nickname} seed={from?.nickname} size={24} />
+                  <Avatar name={from?.nickname} seed={from?.nickname} src={from?.avatar} size={24} />
                 </Link>
                 <p>
                   <Link to={`/u/${c.from}`} className="comment__name">
@@ -222,7 +222,7 @@ export function Composer({ onDone }) {
   return (
     <section className="composer">
       <div className="composer__top">
-        <Avatar name={s.me?.nickname} seed={s.me?.nickname} size={40} />
+        <Avatar name={s.me?.nickname} seed={s.me?.nickname} src={s.me?.avatar} size={40} />
         <textarea
           rows={2}
           maxLength={1000}

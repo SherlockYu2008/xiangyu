@@ -1454,3 +1454,35 @@
     backdrop-filter: none;
   }
 }
+
+.avatar {
+  overflow: hidden;
+}
+
+.avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
+
+.avatarpick {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.avatarpick__badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  border: 2px solid #fff;
+}

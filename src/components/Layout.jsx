@@ -82,7 +82,7 @@ export default function Layout() {
             </div>
           </Link>
           <Link to="/me" className="side__me">
-            <Avatar name={s.me?.nickname} seed={s.me?.nickname} size={34} online />
+            <Avatar name={s.me?.nickname} seed={s.me?.nickname} src={s.me?.avatar} size={34} online />
             <div>
               <b>{s.me?.nickname}</b>
               <span>
@@ -105,7 +105,7 @@ export default function Layout() {
               {unread + requests > 0 && <i className="icon-btn__dot" />}
             </Link>
             <Link to="/me" aria-label="我的">
-              <Avatar name={s.me?.nickname} seed={s.me?.nickname} size={30} />
+              <Avatar name={s.me?.nickname} seed={s.me?.nickname} src={s.me?.avatar} size={30} />
             </Link>
           </div>
         </header>

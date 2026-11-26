@@ -20,7 +20,7 @@ function hashOf(str = '') {
   return Math.abs(h)
 }
 
-export function Avatar({ name = '?', seed, size = 40, online = false, ring = false, className = '' }) {
+export function Avatar({ name = '?', seed, size = 40, online = false, ring = false, src = '', className = '' }) {
   const [a, b] = PALETTE[hashOf(seed || name) % PALETTE.length]
   const ch = [...name][0] || '?'
   return (
@@ -30,11 +30,15 @@ export function Avatar({ name = '?', seed, size = 40, online = false, ring = fal
         width: size,
         height: size,
         fontSize: Math.round(size * 0.42),
-        background: `linear-gradient(135deg, ${a}, ${b})`,
+        background: src ? '#f1eefe' : `linear-gradient(135deg, ${a}, ${b})`,
       }}
       title={name}
     >
-      {ch}
+      {src ? (
+        <img className="avatar__img" src={src} alt={name} loading="lazy" />
+      ) : (
+        ch
+      )}
       {online && <i className="avatar__dot" style={{ width: Math.max(8, size * 0.22), height: Math.max(8, size * 0.22) }} />}
     </span>
   )
