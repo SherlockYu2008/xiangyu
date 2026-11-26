@@ -72,15 +72,6 @@ export default function Layout() {
         </nav>
 
         <div className="side__foot">
-          <Link to="/about" className="side__ai" style={{ textDecoration: 'none' }}>
-            <span className="side__ailed">
-              <Icon name="sparkles" size={16} />
-            </span>
-            <div>
-              <b>开发历程</b>
-              <span>12 天 · 人机协作记录</span>
-            </div>
-          </Link>
           <Link to="/me" className="side__me">
             <Avatar name={s.me?.nickname} seed={s.me?.nickname} src={s.me?.avatar} size={34} online />
             <div>
