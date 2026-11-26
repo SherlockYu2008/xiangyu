@@ -4,6 +4,7 @@ import Icon from '../components/Icon'
 import { Avatar, Empty, Tag, useToast } from '../components/ui'
 import { PostCard } from '../components/social'
 import { fmtDate, fmtRelative } from '../lib/time'
+import { likesOf, likeProfile, visitorsOf } from '../lib/store'
 import {
   acceptRequest,
   albumsOf,
@@ -48,6 +49,7 @@ export default function Profile() {
   const albums = useMemo(() => albumsOf(s, uid), [s, uid])
   const diaries = useMemo(() => diariesOf(s, uid), [s, uid])
   const board = useMemo(() => guestbookOf(s, uid), [s, uid])
+  const visitors = visitorsOf(s, uid)
   const stats = statsOf(s, uid)
 
   if (!s.me) return null
@@ -107,6 +109,17 @@ export default function Profile() {
               </Link>
             ) : (
               <>
+                <button
+                  type="button"
+                  className="btn btn--soft btn--sm"
+                  onClick={() => {
+                    const r = likeProfile(uid)
+                    if (!r.ok) return toast(r.error)
+                    toast('已点赞，今天还能点 ' + r.left + ' 个')
+                  }}
+                >
+                  <Icon name="heart" size={15} /> 赞 {likesOf(s, uid)}
+                </button>
                 <button type="button" className="btn btn--primary btn--sm" onClick={chat}>
                   <Icon name="chat" size={15} /> 发私信
                 </button>
@@ -158,6 +171,9 @@ export default function Profile() {
           </span>
           <span>
             <b>{stats.visits}</b>访客
+          </span>
+          <span>
+            <b>{likesOf(s, uid)}</b>赞
           </span>
         </div>
       </header>
@@ -273,6 +289,38 @@ export default function Profile() {
           )}
         </section>
       )}
+
+      <section className="panel">
+        <div className="panel__head">
+          <div>
+            <h3>最近访客（{visitors.length}）</h3>
+            <p>谁来看过这个主页，双方都看得到</p>
+          </div>
+        </div>
+        {visitors.length === 0 ? (
+          <p className="panel__text">还没有人来过，发条动态把人引过来吧。</p>
+        ) : (
+          <div className="board">
+            {visitors.map((v) => {
+              const who = personById(s, v.visitorId)
+              return (
+                <div className="boardrow" key={v.visitorId}>
+                  <Link to={`/u/${v.visitorId}`}>
+                    <Avatar name={who?.nickname} seed={who?.nickname} src={who?.avatar} size={34} />
+                  </Link>
+                  <div>
+                    <p>
+                      <Link to={`/u/${v.visitorId}`}>{who?.nickname || '已注销'}</Link>
+                      {v.visitorId === s.sessionId ? '（你）' : ''} 来过
+                    </p>
+                    <time>{fmtRelative(v.at)}</time>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
     </div>
   )
 }

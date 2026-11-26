@@ -33,7 +33,7 @@ function blankWorld() {
     users: [], posts: [], albums: [], diaries: [], guestbook: [], visits: [],
     friendPairs: [], requestLog: [], buddies: [], circles: CIRCLES,
     circleMembers: {}, convStore: { conversations: [], messages: {} },
-    materials: [], announcement: null, __files: {},
+    materials: [], profileLikes: [], announcement: null, __files: {},
   }
 }
 
@@ -67,6 +67,7 @@ function snapshot(world) {
     circleMembers: world.circleMembers,
     announcement: world.announcement || null,
     materials: world.materials || [],
+    profileLikes: world.profileLikes || [],
     convStore: world.convStore,
   }
 }

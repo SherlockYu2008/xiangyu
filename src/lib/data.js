@@ -95,6 +95,7 @@ export function blankState() {
     guestbook: [],
     visits: [],
     materials: [],
+    profileLikes: [],
     aiByUser: {},
     settingsByUser: {},
     // 以下为派生字段，load 时会被 recompute

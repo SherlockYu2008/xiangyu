@@ -103,6 +103,7 @@ function blankWorld() {
     friendPairs: [], requestLog: [], buddies: [], circles: CIRCLES,
     circleMembers: {}, convStore: { conversations: [], messages: {} },
     materials: [],
+    profileLikes: [],
     announcement: null,
     __files: {},
   }
@@ -228,6 +229,7 @@ function snapshot() {
     circleMembers: world.circleMembers,
     announcement: world.announcement || null,
     materials: world.materials || [],
+    profileLikes: world.profileLikes || [],
     convStore: world.convStore,
   }
 }

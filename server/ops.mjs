@@ -7,6 +7,17 @@ export function createOps(world, deps) {
   'profile.update'(u, p) {
     Object.assign(u, p.patch || {})
   },
+  // 给别人主页点赞：同一个人一天最多给同一个人点 10 个
+  'profile.like'(u, p) {
+    if (!p.toId || p.toId === u.id) return
+    world.profileLikes = world.profileLikes || []
+    if (p.id && world.profileLikes.some((l) => l.id === p.id)) return
+    const start = new Date()
+    start.setHours(0, 0, 0, 0)
+    const today = world.profileLikes.filter((l) => l.fromId === u.id && l.toId === p.toId && l.at >= start.getTime()).length
+    if (today >= 10) return { error: '今天给他点的赞到上限了' }
+    world.profileLikes.unshift({ id: p.id || rid('pl'), fromId: u.id, toId: p.toId, at: Date.now() })
+  },
   'post.create'(u, p) {
     if (!p.post?.text && !p.post?.images?.length) return
     const postId = p.post.id || rid('p')

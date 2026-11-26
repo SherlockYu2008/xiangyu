@@ -326,6 +326,7 @@ export function adoptCloud(worldData, meId) {
         albums: worldData.albums || [],
         diaries: worldData.diaries || [],
         materials: worldData.materials || [],
+        profileLikes: worldData.profileLikes || [],
         guestbook: worldData.guestbook || [],
         visits: worldData.visits || [],
         friendPairs: worldData.friendPairs || [],
@@ -385,6 +386,7 @@ const remoteSnapshot = (s) => ({
   albums: s.albums,
   diaries: s.diaries,
   materials: s.materials,
+  profileLikes: s.profileLikes || [],
   guestbook: s.guestbook,
   visits: s.visits,
   friendPairs: s.friendPairs,
@@ -698,6 +700,44 @@ export function updateMe(patch) {
   })
 }
 
+/* ---------------- 空间点赞 ---------------- */
+
+export const likesOf = (s, userId) => (s.profileLikes || []).filter((l) => l.toId === userId).length
+
+export function myLikesToday(s, toId) {
+  const start = new Date()
+  start.setHours(0, 0, 0, 0)
+  return (s.profileLikes || []).filter(
+    (l) => l.fromId === s.sessionId && l.toId === toId && l.at >= start.getTime(),
+  ).length
+}
+
+export function likeProfile(toId) {
+  const s = getState()
+  if (!s.me || !toId || toId === s.me.id) return { ok: false, error: '不能给自己点赞' }
+  const used = myLikesToday(s, toId)
+  if (used >= 10) return { ok: false, error: '今天给他点的赞已经满 10 个了，明天再来' }
+  const id = `pl_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`
+  setState((st) => ({
+    ...st,
+    profileLikes: [{ id, fromId: st.sessionId, toId, at: Date.now() }, ...(st.profileLikes || [])],
+  }))
+  cloud.op('profile.like', { id, toId })
+  return { ok: true, left: 10 - used - 1 }
+}
+
+/** 最近访问过某人的访客（去重，取最近 8 个） */
+export function visitorsOf(s, hostId) {
+  const seen = new Set()
+  const out = []
+  for (const v of s.visits || []) {
+    if (v.hostId !== hostId || seen.has(v.visitorId)) continue
+    seen.add(v.visitorId)
+    out.push(v)
+    if (out.length >= 8) break
+  }
+  return out
+}
 /** 换头像：传压缩后的 dataUrl（200×200 左右，十几 KB） */
 export function updateAvatar(dataUrl) {
   updateMe({ avatar: dataUrl || '' })
