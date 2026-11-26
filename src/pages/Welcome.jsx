@@ -7,6 +7,7 @@ import { BRAND } from '../lib/brand'
 import { CAMPUSES, GRADES, TAG_POOL } from '../lib/data'
 import { checkStudentNo, strongPassword } from '../lib/auth'
 import { login, register, useStore } from '../lib/store'
+import { isCloud } from '../lib/cloud'
 
 const EMPTY_FORM = {
   nickname: '',
@@ -318,7 +319,7 @@ export default function Welcome() {
         <span>
           © {new Date().getFullYear()} {BRAND.name} · {BRAND.tagline}
         </span>
-        <span>数据只存在本机浏览器 · 未连接后端</span>
+        <span>{isCloud() ? '数据存在云端 · 手机电脑互通' : '数据只存在本机浏览器 · 未连接后端'}</span>
       </footer>
     </div>
   )
