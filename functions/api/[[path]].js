@@ -4,6 +4,9 @@
 import { createOps } from '../../server/ops.mjs'
 
 const TOKEN_TTL = 7 * 24 * 3600 * 1000
+// Cloudflare 免费版每次请求只有 10ms CPU，PBKDF2 迭代次数必须压到很低
+// （浏览器端仍用 12 万次；这里是服务端存储，演示够用）
+const PBKDF2_ITER = 1000
 const enc = new TextEncoder()
 
 const json = (data, status = 200) =>
@@ -74,7 +77,7 @@ async function hashPw(password, salt) {
   const s = salt || hex(crypto.getRandomValues(new Uint8Array(16)))
   const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits'])
   const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt: enc.encode(s), iterations: 120000, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt: enc.encode(s), iterations: PBKDF2_ITER, hash: 'SHA-256' },
     key,
     256,
   )
@@ -117,6 +120,14 @@ const EXT = (mime) => {
 }
 
 export async function onRequest(context) {
+  try {
+    return await handle(context)
+  } catch (e) {
+    return json({ ok: false, error: String(e && e.message ? e.message : e) }, 500)
+  }
+}
+
+async function handle(context) {
   const { request, env } = context
   const url = new URL(request.url)
   const path = url.pathname
