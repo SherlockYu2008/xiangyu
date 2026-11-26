@@ -27,7 +27,6 @@ export default function Albums() {
         <div>
           <span className="eyebrow">相册</span>
           <h1>照片墙</h1>
-          <p>校内网最费流量的地方。照片会压到 900px 再保存：共享模式存在服务器，本机模式只在你浏览器里。</p>
         </div>
         <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
           <Icon name="plus" size={17} /> 新建相册

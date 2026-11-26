@@ -2,6 +2,7 @@
 // world 是当前数据对象，deps 提供 rid / persistFile / removeImage / isAdmin
 export function createOps(world, deps) {
   const { rid, removeImage, isAdmin } = deps
+  const persistFile = deps.persistFile
   const persistImage = deps.persistFile
   return {
   'profile.update'(u, p) {

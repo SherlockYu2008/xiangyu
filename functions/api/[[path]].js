@@ -56,7 +56,11 @@ function snapshot(world) {
       return rest
     }),
     posts: world.posts,
-    albums: world.albums,
+    // 相册照片存的是 /uploads/xxx，发给前端时统一成 dataUrl
+    albums: (world.albums || []).map((a) => ({
+      ...a,
+      photos: (a.photos || []).map((ph) => ({ ...ph, dataUrl: ph.url || ph.dataUrl })),
+    })),
     diaries: world.diaries,
     guestbook: world.guestbook,
     visits: world.visits,
@@ -66,7 +70,7 @@ function snapshot(world) {
     circles: world.circles,
     circleMembers: world.circleMembers,
     announcement: world.announcement || null,
-    materials: world.materials || [],
+    materials: (world.materials || []).map((m) => ({ ...m, dataUrl: m.url || m.dataUrl })),
     profileLikes: world.profileLikes || [],
     convStore: world.convStore,
   }
