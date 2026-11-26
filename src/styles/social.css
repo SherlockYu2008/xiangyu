@@ -1486,3 +1486,111 @@
   place-items: center;
   border: 2px solid #fff;
 }
+
+/* ---------------- 聊天的媒体消息 ---------------- */
+
+.chat__tool {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink-2);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+}
+
+.chat__tool:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.chat__tool.is-rec {
+  background: #ffe9ef;
+  border-color: #f0779a;
+  color: #e0426b;
+  animation: recPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes recPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(224, 66, 107, 0.35); }
+  50% { box-shadow: 0 0 0 8px rgba(224, 66, 107, 0); }
+}
+
+.bubble--media {
+  padding: 6px;
+}
+
+.chat__img {
+  display: block;
+  max-width: 240px;
+  max-height: 240px;
+  border-radius: 12px;
+  cursor: zoom-in;
+}
+
+.chat__video {
+  display: block;
+  max-width: 260px;
+  border-radius: 12px;
+  background: #000;
+}
+
+.chat__audio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat__audio audio {
+  height: 34px;
+  max-width: 220px;
+}
+
+.chat__audio span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.stickers {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  background: #fbfaff;
+}
+
+.stickers button {
+  border: 0;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  padding: 6px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.stickers button:hover {
+  background: #f0ecff;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(12, 10, 30, 0.8);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  cursor: zoom-out;
+}
+
+.lightbox img {
+  max-width: min(92vw, 900px);
+  max-height: 86vh;
+  border-radius: 14px;
+}

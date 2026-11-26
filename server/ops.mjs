@@ -141,11 +141,17 @@ export function createOps(world, deps) {
   'chat.send'(u, p) {
     const c = world.convStore.conversations.find((x) => x.id === p.convId && x.members.includes(u.id))
     const body = p.message?.body ?? p.body
-    if (!c || !body) return
+    if (!c || (!body && !p.message?.media)) return
     const id = p.message?.id || rid('m')
     const list = world.convStore.messages[c.id] || []
     if (list.some((m) => m.id === id)) return
-    const msg = { id, from: u.id, body: String(body).slice(0, 2000), at: Date.now() }
+    const kind = p.message?.kind || 'text'
+    const media = p.message?.media ? persistFile(p.message.media, id) : ''
+    const msg = {
+      id, from: u.id, body: String(body || '').slice(0, 2000), at: Date.now(), kind,
+      ...(media ? { media } : {}),
+      ...(p.message?.dur ? { dur: Number(p.message.dur) } : {}),
+    }
     world.convStore.messages[c.id] = [...list, msg]
     c.lastAt = msg.at
     c.members.forEach((m) => {
@@ -280,8 +286,4 @@ export function createOps(world, deps) {
     if (target) target.role = p.role === 'admin' ? 'admin' : 'user'
   },
 }
-
-/* ---------------- HTTP ---------------- */
-
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.pdf': 'application/pdf', '.doc': 'application/msword', '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.ppt': 'application/vnd.ms-powerpoint', '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation', '.zip': 'application/zip', '.txt': 'text/plain; charset=utf-8', '.ico': 'image/x-icon', '.json': 'application/json; charset=utf-8'   }
 }

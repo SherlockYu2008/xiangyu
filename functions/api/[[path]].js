@@ -116,6 +116,8 @@ const EXT = (mime) => {
   const map = {
     'application/pdf': 'pdf', 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp',
     'image/gif': 'gif', 'text/plain': 'txt', 'application/zip': 'zip',
+    'audio/webm': 'webm', 'video/webm': 'webm', 'video/mp4': 'mp4', 'audio/mp4': 'm4a',
+    'audio/ogg': 'ogg', 'audio/mpeg': 'mp3', 'audio/wav': 'wav', 'video/quicktime': 'mov',
     'application/msword': 'doc',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
     'application/vnd.ms-powerpoint': 'ppt',

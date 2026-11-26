@@ -10,6 +10,20 @@ import { fileURLToPath } from 'node:url'
 import { randomBytes, scryptSync, timingSafeEqual, createHmac } from 'node:crypto'
 import { createOps } from './ops.mjs'
 
+const MIME = {
+  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png',
+  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp',
+  '.pdf': 'application/pdf', '.doc': 'application/msword',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.ppt': 'application/vnd.ms-powerpoint',
+  '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  '.zip': 'application/zip', '.txt': 'text/plain; charset=utf-8',
+  '.ico': 'image/x-icon', '.json': 'application/json; charset=utf-8',
+  '.webm': 'video/webm', '.mp4': 'video/mp4', '.m4a': 'audio/mp4',
+  '.ogg': 'audio/ogg', '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.mov': 'video/quicktime',
+}
+
 const PORT = Number(process.env.PORT || 8787)
 // 用文件自身位置算根目录：从计划任务/快捷方式启动时 cwd 不是项目目录也不会 404
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -31,6 +45,14 @@ const EXT_BY_MIME = {
   'image/webp': 'webp',
   'image/gif': 'gif',
   'text/plain': 'txt',
+  'audio/webm': 'webm',
+  'video/webm': 'webm',
+  'video/mp4': 'mp4',
+  'audio/mp4': 'm4a',
+  'audio/ogg': 'ogg',
+  'audio/mpeg': 'mp3',
+  'audio/wav': 'wav',
+  'video/quicktime': 'mov',
   'application/zip': 'zip',
   'application/msword': 'doc',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',

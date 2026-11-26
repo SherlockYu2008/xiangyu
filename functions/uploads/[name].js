@@ -1,6 +1,7 @@
 // 文件下载：图片、资料都从 KV 里取（避免把 base64 塞进列表数据）
 const MIME = {
   png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp',
+  webm: 'video/webm', mp4: 'video/mp4', m4a: 'audio/mp4', ogg: 'audio/ogg', mp3: 'audio/mpeg', wav: 'audio/wav', mov: 'video/quicktime',
   pdf: 'application/pdf', txt: 'text/plain; charset=utf-8', zip: 'application/zip',
   doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   ppt: 'application/vnd.ms-powerpoint', pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',

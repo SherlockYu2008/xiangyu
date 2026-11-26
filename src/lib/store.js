@@ -258,7 +258,7 @@ function pushDiff(prev, next) {
       if (now.length > old.length) {
         const last = now[now.length - 1]
         if (last.from === uid && once(`m:${last.id}`)) {
-          cloud.op('chat.send', { convId: conv.id, message: { id: last.id, body: last.body } })
+          cloud.op('chat.send', { convId: conv.id, message: { id: last.id, body: last.body, kind: last.kind, media: last.media, dur: last.dur } })
         }
       }
     }
@@ -920,14 +920,24 @@ export function startChat(peerId) {
   return id
 }
 
-export function sendMessage(convId, body) {
+export function sendMessage(convId, body, extra = {}) {
   const uid = state.sessionId
   const text = String(body || '').trim()
-  if (!uid || !text) return
+  const kind = extra.kind || 'text'
+  if (!uid) return
+  if (!text && !extra.media) return
   const conv = state.convStore.conversations.find((c) => c.id === convId)
   if (!conv || !conv.members.includes(uid)) return
 
-  const msg = { id: `m_${Date.now().toString(36)}`, from: uid, body: text.slice(0, 2000), at: Date.now() }
+  const msg = {
+    id: `m_${Date.now().toString(36)}`,
+    from: uid,
+    body: text.slice(0, 2000),
+    at: Date.now(),
+    kind,
+    ...(extra.media ? { media: extra.media } : {}),
+    ...(extra.dur ? { dur: extra.dur } : {}),
+  }
   setState((s) => ({
     ...s,
     convStore: {
