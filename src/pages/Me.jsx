@@ -120,9 +120,14 @@ export default function Me() {
           <h1>我的橡遇</h1>
           <p>资料、隐私和账号安全，都在这一页。</p>
         </div>
-        <button type="button" className="btn btn--ghost" onClick={openEdit}>
-          <Icon name="edit" size={16} /> 编辑资料
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Link to={`/u/${s.me.id}`} className="btn btn--primary">
+            <Icon name="user" size={16} /> 我的主页
+          </Link>
+          <button type="button" className="btn btn--ghost" onClick={openEdit}>
+            <Icon name="edit" size={16} /> 编辑资料
+          </button>
+        </div>
       </header>
 
       <section className="meprofile">
